@@ -80,7 +80,7 @@ You can find documentation for this module with the perldoc command.
 
 =head1 ACKNOWLEDGEMENTS
 
-This program is inspired by the proposal L<L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MAB-Record>> for the serialization of MARC records in JSON .  
+This program is inspired by the proposal L<http://dilettantes.code4lib.org/blog/2010/09/a-proposal-to-serialize-marc-in-json/> for the serialization of MARC records in JSON.
 
 =head1 AUTHOR
 
