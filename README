@@ -1,6 +1,6 @@
 MAB-Record
 
-Module for handling B<MAB2> (Maschinelles Austauschformat für Bibliotheken)
+Module for handling B<MAB2> (Maschinelles Austauschformat fÃ¼r Bibliotheken)
 records as objects. At the moment the package only supports reading of MAB2
 records. The decoding of records is handled by MAB::File::MAB2. For 
 handling of file with multiple records use MAB::File or MAB::Batch.
