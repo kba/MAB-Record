@@ -7,7 +7,8 @@ lib/MAB/Field.pm
 lib/MAB/File.pm
 lib/MAB/Batch.pm
 lib/MAB/File/MAB2.pm
-lib/MAB/File/JSON.pm
+lib/MAB/File/MABxml.pm
+lib/MAB/File/MABjson.pm
 t/00-load.t
 t/manifest.t
 t/pod-coverage.t

@@ -31,7 +31,7 @@ multiple-file aspects.
 
     use MAB::Batch;
 
-    my $batch = MAB::Batch->new( 'MAB', @files );
+    my $batch = MAB::Batch->new( 'MAB2', @files );
     while ( my $mab = $batch->next ) {
         print $mab->subfield(245,"a"), "\n";
     }

@@ -136,8 +136,8 @@ sub subfield {
     my $self = shift;
     my $code_wanted = shift;
 
-    croak( "Field does not have any subfields, try data()" ) unless $self->{_subfields};
-
+    return unless $self->{_subfields};
+    
     my @data = @{$self->{_subfields}};
     my @found;
     while ( defined( my $code = shift @data ) ) {
@@ -169,7 +169,7 @@ For example, this might be the subfields from a 655 field:
 sub subfields {
     my $self = shift;
 
-    croak( "Field does not have any subfields, try data()" ) unless $self->{_subfields};
+    return undef unless $self->{_subfields};
 
     my @list;
     my @data = @{$self->{_subfields}};
@@ -188,7 +188,7 @@ Returns the data part of the field.
 sub data {
     my $self = shift;
 
-    croak( "Field does not have any data, try subfield()" ) unless $self->{_data};
+    return undef unless $self->{_data};
 
     $self->{_data} = $_[0] if @_;
 

@@ -20,7 +20,8 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-This module can be used to parse a MAB2 file. The conrete parsers is implemented in L<MAB::File::MAB2>.
+This module can be used to parse a file of MAB2 or MABxml records.
+The conrete parsers is implemented in L<MAB::File::MAB2> and L<MAB::File::MABxml>.
 
 =head1 SYNOPSIS
 
@@ -38,7 +39,7 @@ This module can be used to parse a MAB2 file. The conrete parsers is implemented
 
 =head2 in()
 
-Opens a file for import. Ordinarily you will use C<MAB::File::MAB2>
+Opens a file for import. You can use C<MAB::File::MAB2> or C<MAB::File::MABxml>
  to do this.
 
     my $file = MAB::File::MAB2->in( 'file.mab' );

@@ -2,7 +2,7 @@ package MAB::Record;
 
 =head1 NAME
 
-MAB::Record - Perl module for handling MAB2 records
+MAB::Record - Perl module for handling MAB2, MABxml and MABjson records
 
 =cut
 
@@ -25,7 +25,6 @@ $DEBUG = 0;
 
 use constant LEADER_LEN => 24;
 
-
 =head1 VERSION
 
 Version 0.01
@@ -36,10 +35,11 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-Module for handling B<MAB2> (Maschinelles Austauschformat für Bibliotheken)
-records as objects. At the moment the package only supports reading of MAB2
-records. The decoding of records is handled by L<MAB::File::MAB2>. For 
-handling of file with multiple records use L<MAB::File> or L<MAB::Batch>.
+Module for handling B<MAB2> (Maschinelles Austauschformat für Bibliotheken), 
+MABxml and MABjson records as objects. The package supports the deserialization
+and serialization of MAB2, MABxml and MABjson records. The decoding of records
+is handled by L<MAB::File::MAB2>, L<MAB::File::MABxml> and L<MAB::File::MABjson>.
+For handling of files with multiple records use L<MAB::File> or L<MAB::Batch>.
 
 =head1 SYNOPSIS
 
@@ -81,7 +81,7 @@ sub new {
     return bless $self, $class;
 }    # new()
 
-=head2 new_from_mab2( $mabblob )
+=head2 new_from_mab2( $mab2_record )
 
 This is a wrapper around C<MAB::File::MAB2::decode()>.
 
@@ -94,6 +94,36 @@ sub new_from_mab2 {
     require MAB::File::MAB2;
 
     return MAB::File::MAB2::decode( $blob, @_ );
+}
+
+=head2 new_from_mabxml( $mabxml_record )
+
+This is a wrapper around C<MAB::File::MABxml::decode()>.
+
+=cut
+
+sub new_from_mabxml {
+    my $blob = shift;
+    $blob = shift if ( ref($blob) || ( $blob eq "MAB::Record" ) );
+
+    require MAB::File::MABxml;
+
+    return MAB::File::MABxml::decode( $blob, @_ );
+}
+
+=head2 new_from_mabjson( $mabjson_record )
+
+This is a wrapper around C<MAB::File::MABjson::decode()>.
+
+=cut
+
+sub new_from_mabjson {
+    my $blob = shift;
+    $blob = shift if ( ref($blob) || ( $blob eq "MAB::Record" ) );
+
+    require MAB::File::MABjson;
+
+    return MAB::File::MABjson::decode( $blob, @_ );
 }
 
 =head1 COMMON FIELD RETRIEVAL METHODS
@@ -279,10 +309,10 @@ returns the first matching tag, or undef if nothing matched.
 sub subfield {
     my $self     = shift;
     my $tag      = shift;
-	my $ind		 = shift;	
+    my $ind      = shift;
     my $subfield = shift;
 
-    my @fields = $self->field($tag, $ind) or return;
+    my @fields = $self->field( $tag, $ind ) or return;
 
     my @list = ();
     foreach my $field (@fields) {
@@ -507,7 +537,11 @@ A mailing list devoted to the use of Perl in libraries.
 
 =item * MAB2 pages of the "Deutsche National Bibliothek" (L<http://www.d-nb.de/standardisierung/formate/mab.htm/>)
 
-Documentation of MAB2 tags and subfields. In German only.
+Documentation of MAB2 tags and subfields. German only.
+
+=item * MABxml pages of the "Deutsche National Bibliothek" (L<http://www.d-nb.de/standardisierung/formate/mabxml.htm>)
+
+Documentation of MABxml tags and subfields. German only.
 
 =back
 

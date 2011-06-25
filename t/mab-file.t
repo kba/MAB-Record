@@ -10,7 +10,8 @@ use File::Spec;
 
 BEGIN {
     use_ok( 'MAB::File::MAB2' );
-    use_ok( 'MAB::File::JSON' );
+    use_ok( 'MAB::File::MAB2xml' );
+    use_ok( 'MAB::File::MAB2json' );
 }
 
 my $filename = File::Spec->catfile( 't', 'journals.mab2' );
