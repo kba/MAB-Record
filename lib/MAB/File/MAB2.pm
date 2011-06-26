@@ -9,7 +9,6 @@ MAB::File::MAB2 - Serialization & Deserialization of MAB2 data
 use strict;
 use warnings;
 use integer;
-use bytes;
 use vars qw( $ERROR );
 use MAB::File;
 use vars qw( @ISA );

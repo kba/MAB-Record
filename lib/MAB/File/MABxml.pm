@@ -8,7 +8,7 @@ MAB::File::MABxml - Serialization & Deserialization of MABxml data
 
 use strict;
 use warnings;
-use charnames  ':full';
+use charnames ':full';
 use vars qw( $ERROR );
 use MAB::File;
 use vars qw( @ISA );
@@ -17,30 +17,6 @@ use MAB::Field;
 use MAB::Record qw( LEADER_LEN );
 use XML::Parser;
 use XML::Writer;
-
-
-# Die verbleibenden MAB2-Steuerzeichen „Nichtsortierzeichen“, „Teilfeldtrennzeichen“ und 
-# „Stichwortzeichen“ werden durch die Tags <ns></ns> (Nichtsortierzeichen), <stw></stw> 
-# (Stichwortzeichen) und das leere Element <tf/> (Teilfeldtrennzeichen) ersetzt
-# MAB2 Zeichen/Bedeutung MAB2  Unicode Zeichen/Bedeutung ISO/IEC 10646 / Unicode 
-# 88  Nicht-Sortier-Zeichen, Beginn  0098  <control> / START OF STRING   3) 
-# 89  Nicht-Sortier-Zeichen, Ende  009C  <control> / STRING TERMINATOR    3) 
-# B6  Doppelkreuz  2021  DOUBLE DAGGER      6)
-# 7B  geschweifte Klammer auf (Stichwort-Beginn)  007B  LEFT CURLY BRACKET 
-# 7D  geschweifte Klammer zu (Stichwort-Ende)  007D  RIGHT CURLY BRACKET 
-# 6) zu B6 
-# In MAB wird B6 als Strukturelement "Teilfeldtrennzeichen" verwendet.
-
-# Nicht-Sortier-Zeichen <ns></ns>
-use constant START_OF_STRING   => "\x98";
-use constant STRING_TERMINATOR => "\x9c";
-
-# Stichwort <stw></stw>
-use constant LEFT_CURLY_BRACKET  => "\x7b";
-use constant RIGHT_CURLY_BRACKET => "\x7d";
-
-# Teilfeldtrennzeichen <tf/>
-use constant DOUBLE_DAGGER => "\x87";
 
 =head1 VERSION
 
@@ -187,8 +163,21 @@ sub encode {
             $writer->endTag("feld");
         }
     }
+
     $writer->endTag("datensatz");
     $writer->end();
+
+    # replace remaining MAB2 control characters with tags
+    my %replace = (
+        "\N{START OF STRING}"     => "<ns>",
+        "\N{STRING TERMINATOR}"   => "</ns>",
+        "\N{LEFT CURLY BRACKET}"  => "<stw>",
+        "\N{RIGHT CURLY BRACKET}" => "</stw>",
+        "\N{DOUBLE DAGGER}"       => "<tf/>",
+    );
+    my $regex = join "|", keys %replace;
+    $regex = qr/$regex/;
+    $$mabxml_ref =~ s/($regex)/$replace{$1}/g;
 
     return $$mabxml_ref;
 }
@@ -210,23 +199,26 @@ sub start_handler {
             ".....$attrs{status}$attrs{mabVersion}.............$attrs{typ}");
     }
     elsif ( $element eq 'tf' ) {
-        if ( $stack{subfield_code} ){
+        if ( $stack{subfield_code} ) {
             $stack{subfield_value} .= "\N{DOUBLE DAGGER}";
-        }else{
+        }
+        else {
             $stack{data} .= "\N{DOUBLE DAGGER}";
         }
     }
     elsif ( $element eq 'ns' ) {
-        if ( $stack{subfield_code} ){
+        if ( $stack{subfield_code} ) {
             $stack{subfield_value} .= "\N{START OF STRING}";
-        }else{
+        }
+        else {
             $stack{data} .= "\N{START OF STRING}";
         }
     }
     elsif ( $element eq 'stw' ) {
-        if ( $stack{subfield_code} ){
+        if ( $stack{subfield_code} ) {
             $stack{subfield_value} .= "\N{LEFT CURLY BRACKET}";
-        }else{
+        }
+        else {
             $stack{data} .= "\N{LEFT CURLY BRACKET}";
         }
     }
@@ -270,16 +262,18 @@ sub end_handler {
         $stack{subfields} = undef;
     }
     elsif ( $element eq 'ns' ) {
-        if ( $stack{subfield_code} ){
+        if ( $stack{subfield_code} ) {
             $stack{subfield_value} .= "\N{STRING TERMINATOR}";
-        }else{
+        }
+        else {
             $stack{data} .= "\N{STRING TERMINATOR}";
         }
     }
     elsif ( $element eq 'stw' ) {
-        if ( $stack{subfield_code} ){
+        if ( $stack{subfield_code} ) {
             $stack{subfield_value} .= "\N{RIGHT CURLY BRACKET}";
-        }else{
+        }
+        else {
             $stack{data} .= "\N{RIGHT CURLY BRACKET}";
         }
     }

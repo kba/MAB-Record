@@ -44,9 +44,10 @@ Deserialize a MABjson record to a MAB::Record object.
 sub decode {
 
     my $string = shift;
-
+    print "$string\n";
     my $json   = Mojo::JSON->new;
     my $hash   = $json->Mojo::JSON::decode($string);
+    print Dumper($hash);
     my $record = MAB::Record->new();
     $record->leader( $hash->{leader} );
     foreach my $field ( @{ $hash->{fields} } ) {
