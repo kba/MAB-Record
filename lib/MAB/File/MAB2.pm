@@ -1,4 +1,4 @@
-package MAB::File::MAB2;
+﻿package MAB::File::MAB2;
 
 =head1 NAME
 
@@ -6,22 +6,31 @@ MAB::File::MAB2 - Serialization & Deserialization of MAB2 data
 
 =cut
 
-use strict;
-use warnings;
-use integer;
-use vars qw( $ERROR );
-use MAB::File;
-use vars qw( @ISA );
-@ISA = qw( MAB::File );
-use MAB::Record qw( LEADER_LEN );
+use v5.12;
 
-use constant SUBFIELD_INDICATOR => "\x1F";
-use constant END_OF_FIELD       => "\x1E";
-use constant END_OF_RECORD      => "\x1D";
+use utf8;
+use strict;
+use autodie;
+use warnings; 
+use warnings    qw< FATAL  utf8     >;
+use charnames   qw< :full >;
+use feature     qw< unicode_strings >;
+
+use Carp                qw< carp croak confess cluck >;
+use Encode              qw< >;
+
+use vars qw< @ISA $ERROR >;
+use MAB::File;
+@ISA = qw< MAB::File >;
+use MAB::Record qw< LEADER_LEN >;
+
+use constant SUBFIELD_INDICATOR => "\N{INFORMATION SEPARATOR ONE}";
+use constant END_OF_FIELD       => "\N{INFORMATION SEPARATOR TWO}";
+use constant END_OF_RECORD      => "\N{INFORMATION SEPARATOR THREE}";
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 

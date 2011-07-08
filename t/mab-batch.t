@@ -22,5 +22,5 @@ MAB2: {
 
         my $f001 = $mab->field( '001' );
         isa_ok( $f001, 'MAB::Field' );
-	}
+    }
 }

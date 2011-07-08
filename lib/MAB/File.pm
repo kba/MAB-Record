@@ -55,14 +55,14 @@ Optionally you can also pass in a filehandle.
 
 sub in {
     my $class = shift;
-    my $arg = shift;
+    my $arg   = shift;
     my ( $filename, $fh );
 
     ## if a valid filehandle was passed in
     my $ishandle = do { no strict; defined fileno($arg); };
-    if ( $ishandle ) {
-        $filename = scalar( $arg );
-        $fh = $arg;
+    if ($ishandle) {
+        $filename = scalar($arg);
+        $fh       = $arg;
     }
 
     ## otherwise check if it's a filename, and
@@ -70,22 +70,22 @@ sub in {
     else {
         $filename = $arg;
         $fh = eval { local *FH; open( FH, $arg ) or die; *FH{IO}; };
-        if ( $@ ) {
+        if ($@) {
             die "Couldn't open file $filename: $@";
             return;
         }
     }
 
     my $self = {
-        filename    => $filename,
-        fh          => $fh,
-        recnum      => 0,
-        warnings    => [],
+        filename => $filename,
+        fh       => $fh,
+        recnum   => 0,
+        warnings => [],
     };
 
-    return( bless $self, $class );
+    return ( bless $self, $class );
 
-} # new()
+}    # new()
 
 =head2 next()
 
@@ -97,12 +97,12 @@ sub next {
     my $self = shift;
     $self->{recnum}++;
     my $rec = $self->_next() or return;
-    my $rec_decoded = $self->decode($rec, @_);
-	my @warnings = @{ $rec_decoded->{_warnings} };
-	if (@warnings) {
-		push(@{ $self->{warnings} }, @warnings);
-	}
-	return($rec_decoded);
+    my $rec_decoded = $self->decode( $rec, @_ );
+    my @warnings = @{ $rec_decoded->{_warnings} };
+    if (@warnings) {
+        push( @{ $self->{warnings} }, @warnings );
+    }
+    return ($rec_decoded);
 }
 
 =head2 skip()
@@ -128,10 +128,10 @@ processing this file; and as a side-effect will clear the warnings buffer.
 =cut
 
 sub warnings {
-    my $self = shift;
+    my $self     = shift;
     my @warnings = @{ $self->{warnings} };
     $self->{warnings} = [];
-    return(@warnings);
+    return (@warnings);
 }
 
 =head2 close()
@@ -148,8 +148,8 @@ sub close {
     return;
 }
 
-sub _unimplemented() {
-    my $self = shift;
+sub _unimplemented {
+    my $self   = shift;
     my $method = shift;
     warn "Method $method must be overridden";
 }
@@ -166,15 +166,15 @@ in your subclass.
 
 =cut
 
-sub write   { $_[0]->_unimplemented("write"); }
-sub decode  { $_[0]->_unimplemented("decode"); }
+sub write  { $_[0]->_unimplemented("write"); }
+sub decode { $_[0]->_unimplemented("decode"); }
 
 # NOTE: _warn must be called as an object method
 
 sub _warn {
-    my ($self,$warning) = @_;
-    push( @{ $self->{warnings} }, "$warning in record ".$self->{recnum} );
-    return( $self );
+    my ( $self, $warning ) = @_;
+    push( @{ $self->{warnings} }, "$warning in record " . $self->{recnum} );
+    return ($self);
 }
 
 1;

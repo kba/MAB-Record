@@ -1,4 +1,4 @@
-package MAB::File::MABjson;
+﻿package MAB::File::MABjson;
 
 =head1 NAME
 
@@ -6,16 +6,25 @@ MAB::File::MABjson - Serialization & Deserialization of MABjson data
 
 =cut
 
-use strict;
-use warnings;
+use v5.12;
 
-use Encode qw();
+use utf8;
+use strict;
+use autodie;
+use warnings; 
+use warnings    qw< FATAL  utf8     >;
+use charnames   qw< :full >;
+use feature     qw< unicode_strings >;
+
+use Carp        qw< carp croak confess cluck >;
+use Encode      qw< >;
+
 use MAB::Record;
 use Mojo::JSON;
 
 =head1 VERSION
 
-Version 0.01 
+Version 0.02 
 
 =cut
 
@@ -37,17 +46,18 @@ This module provides functions for serializing and deserializing MABjson data.
 
 =head2 decode( $string )
 
-Deserialize a MABjson record to a MAB::Record object.
+Deserialize a MABjson record string to a MAB::Record object.
 
 =cut
 
 sub decode {
-
+    my $self = shift;
     my $string = shift;
-    print "$string\n";
+    # Mojo::JSON does not accept Perl strings. It accepts octets. 
+    # So we have to encode Perl strings before passing them to JSON object
+    $string = Encode::encode( "UTF-8", $string );
     my $json   = Mojo::JSON->new;
-    my $hash   = $json->Mojo::JSON::decode($string);
-    print Dumper($hash);
+    my $hash   = $json->decode($string);
     my $record = MAB::Record->new();
     $record->leader( $hash->{leader} );
     foreach my $field ( @{ $hash->{fields} } ) {
@@ -78,11 +88,10 @@ Serialize a MAB2::Record object to a MABjson record string.
 =cut
 
 sub encode {
-
+    my $self        = shift;
     my $record      = shift;
-    
     my %record_hash = (
-        'leader' => $record->leader(),
+        'leader' => $record->MAB::Record::leader(),
         'fields' => [],
     );
 
@@ -112,12 +121,10 @@ sub encode {
 
     my $json = Mojo::JSON->new;
     my $json_string = $json->encode( {%record_hash} );
-
-    # return $json_string
-    # double-encoding workaround, fix filehandling and encoding
-    my $tmp = Encode::decode( "utf8", $json_string );
-    return $tmp;
-
+    # Mojo::JSON->encode() returns UTF-8 string, but MAB::File::MABjson::encode() 
+    # should return Perl string 
+    $json_string = Encode::decode( "utf8", $json_string );
+    return $json_string ;
 }
 
 1;

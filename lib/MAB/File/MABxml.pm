@@ -1,4 +1,4 @@
-package MAB::File::MABxml;
+﻿package MAB::File::MABxml;
 
 =head1 NAME
 
@@ -6,21 +6,30 @@ MAB::File::MABxml - Serialization & Deserialization of MABxml data
 
 =cut
 
+use v5.12;
+
+use utf8;
 use strict;
-use warnings;
-use charnames ':full';
-use vars qw( $ERROR );
+use autodie;
+use warnings; 
+use warnings    qw< FATAL  utf8     >;
+use charnames   qw< :full >;
+use feature     qw< unicode_strings >;
+use Carp        qw< carp croak confess cluck >;
+use Encode      qw< >;
+
+use vars qw( @ISA $ERROR );
 use MAB::File;
-use vars qw( @ISA );
 @ISA = qw( MAB::File );
+
 use MAB::Field;
-use MAB::Record qw( LEADER_LEN );
+use MAB::Record;
 use XML::Parser;
 use XML::Writer;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
@@ -101,7 +110,6 @@ sub decode {
         End   => \&end_handler,
     );
     $parser->parse($text);
-
     return $stack{record};
 }
 
@@ -166,7 +174,8 @@ sub encode {
 
     $writer->endTag("datensatz");
     $writer->end();
-
+    
+    $mabxml = $$mabxml_ref;
     # replace remaining MAB2 control characters with tags
     my %replace = (
         "\N{START OF STRING}"     => "<ns>",
@@ -177,12 +186,17 @@ sub encode {
     );
     my $regex = join "|", keys %replace;
     $regex = qr/$regex/;
-    $$mabxml_ref =~ s/($regex)/$replace{$1}/g;
-
-    return $$mabxml_ref;
+    $mabxml =~ s/($regex)/$replace{$1}/g;
+    return $mabxml;
 }
 
-# XML handlers
+=head1 PRIVATE HANDLERS
+
+=head2 start_handler( )
+
+Called for each start tag.
+
+=cut
 
 sub start_handler {
     my ( $parser, $element, %attrs ) = @_;
@@ -224,6 +238,12 @@ sub start_handler {
     }
 }
 
+=head2 text_handler( )
+
+Called for character data.
+
+=cut 
+
 sub text_handler {
     my ( $parser, $text ) = @_;
     chomp($text);
@@ -234,6 +254,12 @@ sub text_handler {
         $stack{data} .= $text;
     }
 }
+
+=head2 end_handler( )
+
+Called for each end tag.
+
+=cut 
 
 sub end_handler {
     my ( $parser, $element ) = @_;

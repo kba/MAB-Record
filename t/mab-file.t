@@ -5,13 +5,13 @@ use integer;
 
 use constant SKIPS => 10;
 
-use Test::More tests=> SKIPS + 4;
+use Test::More tests=> SKIPS + 5;
 use File::Spec;
 
 BEGIN {
     use_ok( 'MAB::File::MAB2' );
-    use_ok( 'MAB::File::MAB2xml' );
-    use_ok( 'MAB::File::MAB2json' );
+    use_ok( 'MAB::File::MABjson' );
+    use_ok( 'MAB::File::MABxml' );
 }
 
 my $filename = File::Spec->catfile( 't', 'journals.mab2' );

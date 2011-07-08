@@ -18,4 +18,4 @@ my $subfield = $record->subfield('655', ' ', 'u');
 is( $subfield, 'http://journal.code4lib.org/', 'subfield() in scalar context' );
 is($record->title(), 'Code4Lib journal', '$record->title()');
 is($record->record_id(), '2415107-5', 'record_id()');
-is($record->record_length(), 'x0560', 'record_id()');
+is($record->record_length(), 'x0560', 'record_length()');
