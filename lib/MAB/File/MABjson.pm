@@ -22,6 +22,8 @@ use Encode      qw< >;
 use MAB::Record;
 use Mojo::JSON;
 
+use Data::Dumper;
+
 =head1 VERSION
 
 Version 0.02 
@@ -51,13 +53,22 @@ Deserialize a MABjson record string to a MAB::Record object.
 =cut
 
 sub decode {
-    my $self = shift;
-    my $string = shift;
+    my $text;
+    my $location = '';
+    my $self     = shift;
+    if ( ref($self) =~ /^MAB::File/ ) {
+        $location = 'in record ' . $self->{recnum};
+        $text     = shift;
+    }
+    else {
+        $location = 'in record 1';
+        $text = $self =~ /MAB::File/ ? shift : $self;
+    }
     # Mojo::JSON does not accept Perl strings. It accepts octets. 
     # So we have to encode Perl strings before passing them to JSON object
-    $string = Encode::encode( "UTF-8", $string );
+    $text = Encode::encode( "UTF-8", $text );
     my $json   = Mojo::JSON->new;
-    my $hash   = $json->decode($string);
+    my $hash   = $json->decode($text);
     my $record = MAB::Record->new();
     $record->leader( $hash->{leader} );
     foreach my $field ( @{ $hash->{fields} } ) {
@@ -66,14 +77,14 @@ sub decode {
             foreach my $subfield ( @{ $field->{subfields} } ) {
                 push( @subfields,
                     ( keys %$subfield )[0],
-                    $subfield->{ ( keys %$subfield )[0] } );
+                    Encode::decode("UTF-8", $subfield->{ ( keys %$subfield )[0] }) );
             }
             $record->append_fields(
                 MAB::Field->new( $field->{tag}, $field->{ind}, @subfields ) );
         }
         else {
             $record->append_fields(
-                MAB::Field->new( $field->{tag}, $field->{ind}, $field->{data} )
+                MAB::Field->new( $field->{tag}, $field->{ind}, Encode::decode("UTF-8", $field->{data}) )
             );
         }
     }
@@ -88,10 +99,20 @@ Serialize a MAB2::Record object to a MABjson record string.
 =cut
 
 sub encode {
-    my $self        = shift;
-    my $record      = shift;
+    my $record;
+    my $location = '';
+    my $self     = shift;
+    if ( ref($self) =~ /^MAB::File/ ) {
+        $location = 'in record ' . $self->{recnum};
+        $record   = shift;
+    }
+    else {
+        $location = 'in record 1';
+        $record = $self =~ /MAB::File/ ? shift : $self;
+    }
+
     my %record_hash = (
-        'leader' => $record->MAB::Record::leader(),
+        'leader' => $record->leader(),
         'fields' => [],
     );
 
@@ -121,9 +142,9 @@ sub encode {
 
     my $json = Mojo::JSON->new;
     my $json_string = $json->encode( {%record_hash} );
-    # Mojo::JSON->encode() returns UTF-8 string, but MAB::File::MABjson::encode() 
-    # should return Perl string 
-    $json_string = Encode::decode( "utf8", $json_string );
+    # Mojo::JSON->encode() returns UTF-8 string,
+    # but MAB::File::MABjson::encode() should return Perl string 
+    $json_string = Encode::decode( "UTF-8", $json_string );
     return $json_string ;
 }
 
