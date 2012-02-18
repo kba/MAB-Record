@@ -152,6 +152,7 @@ sub _unimplemented {
     my $self   = shift;
     my $method = shift;
     warn "Method $method must be overridden";
+    return;
 }
 
 =head2 write()
@@ -166,8 +167,8 @@ in your subclass.
 
 =cut
 
-sub write  { $_[0]->_unimplemented("write"); }
-sub decode { $_[0]->_unimplemented("decode"); }
+sub write  { $_[0]->_unimplemented("write"); return; }
+sub decode { $_[0]->_unimplemented("decode"); return; }
 
 # NOTE: _warn must be called as an object method
 

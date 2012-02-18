@@ -4,7 +4,7 @@
 
 MAB::File::MAB2 - Serialization & Deserialization of MAB2 data
 
-=cut
+=cut]
 
 use v5.12;
 
@@ -12,7 +12,7 @@ use utf8;
 use strict;
 use autodie;
 use warnings; 
-use warnings    qw< FATAL  utf8     >;
+# use warnings    qw< FATAL  utf8     >;
 use charnames   qw< :full >;
 use feature     qw< unicode_strings >;
 
@@ -34,7 +34,7 @@ Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
@@ -67,7 +67,7 @@ sub _next {
     my $mab = <$fh>;
 
     # remove illegal garbage that sometimes occurs between records
-    $mab =~ s/^[ \x00\x0a\x0d\x1a]+//;
+    $mab =~ s/^[ \x00\x0a\x0d\x1a]+//xms;
 
     return $mab;
 }
@@ -92,13 +92,13 @@ sub decode {
     ## this bit of code covers all three
 
     my $self = shift;
-    if ( ref($self) =~ /^MAB::File/ ) {
+    if ( ref($self) =~ m/^MAB::File/xms ) {
         $location = 'in record ' . $self->{recnum};
         $text     = shift;
     }
     else {
         $location = 'in record 1';
-        $text = $self =~ /MAB::File/ ? shift : $self;
+        $text = $self =~ m/MAB::File/xms ? shift : $self;
     }
 
     # create a new MAB::Record object
@@ -107,7 +107,7 @@ sub decode {
     my $reclen = substr( $text, 0, 5 );
 
     # check for an all-numeric record length
-    if ( $text =~ /^(\d{5})/ ) {
+    if ( $text =~ m/^(\d{5})/xms ) {
         my $realLength = bytes::length($text);
         ( $reclen == $realLength )
           or
@@ -137,11 +137,11 @@ sub decode {
         my $tagdata = substr( $field, 4 );
 
         # check for a 3-digit numeric tag
-        ( $tagno =~ /^[0-9]{3}$/ )
+        ( $tagno =~ m/^[0-9]{3}$/xms )
           or $mab->_warn("Invalid tag at $location: \"$tagno$ind\"");
 
         # check if indicator is an single alphabetic character
-        ( $ind =~ /^[a-z\s]$/ )
+        ( $ind =~ m/^[a-z\s]$/xms )
           or $mab->_warn("Invalid ind at $location: \"$tagno$ind\"");
 
         # check if tagdata contains subfields
@@ -190,13 +190,13 @@ sub encode {
     ## this bit of code covers all three
 
     my $self = shift;
-    if ( ref($self) =~ /^MAB::File/ ) {
+    if ( ref($self) =~ m/^MAB::File/xms ) {
         $location = 'in record ' . $self->{recnum};
         $record   = shift;
     }
     else {
         $location = 'in record 1';
-        $record = $self =~ /MAB::File/ ? shift : $self;
+        $record = $self =~ m/MAB::File/xms ? shift : $self;
     }
     my $mab2   = $record->leader();
     my @fields = $record->fields;

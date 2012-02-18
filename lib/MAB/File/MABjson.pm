@@ -12,7 +12,7 @@ use utf8;
 use strict;
 use autodie;
 use warnings; 
-use warnings    qw< FATAL  utf8     >;
+# use warnings    qw< FATAL  utf8     >;
 use charnames   qw< :full >;
 use feature     qw< unicode_strings >;
 
@@ -30,7 +30,7 @@ Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
@@ -56,13 +56,13 @@ sub decode {
     my $text;
     my $location = '';
     my $self     = shift;
-    if ( ref($self) =~ /^MAB::File/ ) {
+    if ( ref($self) =~ m/^MAB::File/xms ) {
         $location = 'in record ' . $self->{recnum};
         $text     = shift;
     }
     else {
         $location = 'in record 1';
-        $text = $self =~ /MAB::File/ ? shift : $self;
+        $text = $self =~ m/MAB::File/xms ? shift : $self;
     }
     # Mojo::JSON does not accept Perl strings. It accepts octets. 
     # So we have to encode Perl strings before passing them to JSON object
@@ -102,13 +102,13 @@ sub encode {
     my $record;
     my $location = '';
     my $self     = shift;
-    if ( ref($self) =~ /^MAB::File/ ) {
+    if ( ref($self) =~ m/^MAB::File/xms ) {
         $location = 'in record ' . $self->{recnum};
         $record   = shift;
     }
     else {
         $location = 'in record 1';
-        $record = $self =~ /MAB::File/ ? shift : $self;
+        $record = $self =~ m/MAB::File/xms ? shift : $self;
     }
 
     my %record_hash = (

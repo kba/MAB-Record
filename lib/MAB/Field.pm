@@ -64,34 +64,35 @@ sub new {
     my $class = shift;
     $class = $class;
 
-	# only three-digit tags allowed
+    # only three-digit tags allowed
     my $tagno = shift;
-    ($tagno =~ /^[0-9]{3}$/)
-        or croak( "Tag \"$tagno\" is not a valid tag." );
+    ( $tagno =~ m/^[0-9]{3}$/xms )
+      or croak("Tag \"$tagno\" is not a valid tag.");
 
     my $ind = shift;
-    if ($ind !~ /^[\sa-z]$/){
-		croak( "Indicator \"$ind\" at field \"$tagno\" is not a valid indicator" ) unless ($ind eq "");
-		$ind = " ";
-	}
-		
+    if ( $ind !~ m/^[\sa-z]$/xms ) {
+        croak("Indicator \"$ind\" at field \"$tagno\" is not a valid indicator")
+          unless ( $ind eq "" );
+        $ind = " ";
+    }
+
     my $self = bless {
-        _tag => $tagno,
-		_ind => $ind,
+        _tag      => $tagno,
+        _ind      => $ind,
         _warnings => [],
     }, $class;
 
-	(@_ >= 1)
-		or croak( "Field $tagno must have at least some data or one subfield" );
-	if (@_ == 1){
-		$self->{_data} = shift;
-	}else{
-		$self->{_subfields} = [@_];
-	}
+    ( @_ >= 1 )
+      or croak("Field $tagno must have at least some data or one subfield");
+    if ( @_ == 1 ) {
+        $self->{_data} = shift;
+    }
+    else {
+        $self->{_subfields} = [@_];
+    }
 
     return $self;
-} # new()
-
+}    # new()
 
 =head2 tag()
 
@@ -112,7 +113,7 @@ Returns the indicator for that field.
 
 sub indicator {
     my $self = shift;
-	return $self->{_ind};
+    return $self->{_ind};
 }
 
 =head2 subfield( $subfield_code )
@@ -133,22 +134,23 @@ and an empty list in a list context.
 =cut
 
 sub subfield {
-    my $self = shift;
+    my $self        = shift;
     my $code_wanted = shift;
 
     return unless exists $self->{_subfields};
-    
-    my @data = @{$self->{_subfields}};
+
+    my @data = @{ $self->{_subfields} };
     my @found;
     while ( defined( my $code = shift @data ) ) {
         if ( $code eq $code_wanted ) {
             push( @found, shift @data );
-        } else {
+        }
+        else {
             shift @data;
         }
     }
     if ( wantarray() ) { return @found; }
-    return( $found[0] );
+    return ( $found[0] );
 }
 
 =head2 subfields()
@@ -172,9 +174,9 @@ sub subfields {
     return undef unless exists $self->{_subfields};
 
     my @list;
-    my @data = @{$self->{_subfields}};
+    my @data = @{ $self->{_subfields} };
     while ( defined( my $code = shift @data ) ) {
-        push( @list, {$code => shift @data} );
+        push( @list, { $code => shift @data } );
     }
     return @list;
 }
@@ -208,8 +210,8 @@ Returns the number of subfields added, or C<undef> if there was an error.
 sub add_subfields {
     my $self = shift;
 
-    push( @{$self->{_subfields}}, @_ );
-    return @_/2;
+    push( @{ $self->{_subfields} }, @_ );
+    return @_ / 2;
 }
 
 =head2 as_string( $subfields )
@@ -234,7 +236,7 @@ If C<$subfields> is specified, then only those subfields will be included.
 =cut
 
 sub as_string() {
-    my $self = shift;
+    my $self      = shift;
     my $subfields = shift;
 
     if ( $self->{_data} ) {
@@ -243,14 +245,14 @@ sub as_string() {
 
     my @subs;
 
-    my $subs = $self->{_subfields};
+    my $subs    = $self->{_subfields};
     my $nfields = @$subs / 2;
-    for my $i ( 1..$nfields ) {
-        my $offset = ($i-1)*2;
-        my $code = $subs->[$offset];
-        my $text = $subs->[$offset+1];
-        push( @subs, $text ) if !$subfields || $code =~ /^[$subfields]$/;
-    } # for
+    for my $i ( 1 .. $nfields ) {
+        my $offset = ( $i - 1 ) * 2;
+        my $code   = $subs->[$offset];
+        my $text   = $subs->[ $offset + 1 ];
+        push( @subs, $text ) if !$subfields || $code =~ m/^[$subfields]$/xms;
+    }    # for
 
     return join( " ", @subs );
 }
@@ -264,14 +266,16 @@ Returns the warnings that were created when the record was read.
 sub warnings() {
     my $self = shift;
 
-    return @{$self->{_warnings}};
+    return @{ $self->{_warnings} };
 }
 
 # NOTE: _warn is an object method
 sub _warn {
     my $self = shift;
-
-    push( @{$self->{_warnings}}, join( "", @_ ) );
+    
+    push( @{ $self->{_warnings} }, join( "", @_ ) );
+    
+    return;
 }
 
 sub _gripe {

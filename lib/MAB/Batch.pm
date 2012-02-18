@@ -64,9 +64,9 @@ And you can mix and match if you really want to:
 
 sub new {
     my $class = shift;
-    my $type = shift;
+    my $type  = shift;
 
-    my $mabclass = ($type =~ /^MAB::File/) ? $type : "MAB::File::$type";
+    my $mabclass = ( $type =~ m/^MAB::File/xms ) ? $type : "MAB::File::$type";
 
     eval "require $mabclass";
     croak $@ if $@;
@@ -74,20 +74,19 @@ sub new {
     my @files = @_;
 
     my $self = {
-        filestack   =>  \@files,
-        filename    =>  undef,
-        mabclass   =>  $mabclass,
-        file        =>  undef,
-        warnings    =>  [],
-        'warn'      =>  1,
-        strict      =>  1,
+        filestack => \@files,
+        filename  => undef,
+        mabclass  => $mabclass,
+        file      => undef,
+        warnings  => [],
+        'warn'    => 1,
+        strict    => 1,
     };
 
     bless $self, $class;
 
     return $self;
-} # new()
-
+}    # new()
 
 =head2 next()
 
@@ -111,22 +110,22 @@ can boost performance.
 sub next {
     my ( $self, $filter ) = @_;
     if ( $filter and ref($filter) ne 'CODE' ) {
-        croak( "filter function in next() must be a subroutine reference" );
+        croak("filter function in next() must be a subroutine reference");
     }
 
     if ( $self->{file} ) {
 
         # get the next record
-        my $rec = $self->{file}->next( $filter );
+        my $rec = $self->{file}->next($filter);
 
         # collect warnings from MAB::File::* object
         # we use the warnings() method here since MAB::Batch
         # hides access to MAB::File objects, and we don't
         # need to preserve the warnings buffer.
         my @warnings = $self->{file}->warnings();
-        if ( @warnings ) {
-            $self->warnings( @warnings );
-            return if $self->{ strict };
+        if (@warnings) {
+            $self->warnings(@warnings);
+            return if $self->{strict};
         }
 
         if ($rec) {
@@ -134,33 +133,34 @@ sub next {
             # collect warnings from the MAB::Record object
             # IMPORTANT: here we don't use warnings() but dig
             # into the the object to get at the warnings without
-            # erasing the buffer. This is so a user can call 
+            # erasing the buffer. This is so a user can call
             # warnings() on the MAB::Record object and get back
             # warnings for that specific record.
-            
-			#my @warnings = @{ $rec->{_warnings} };
+
+            #my @warnings = @{ $rec->{_warnings} };
 
             if (@warnings) {
+
                 #$self->warnings( @warnings );
-                return if $self->{ strict };
+                return if $self->{strict};
             }
 
             # return the MAB::Record object
-            return($rec);
+            return ($rec);
 
         }
 
     }
 
     # Get the next file off the stack, if there is one
-    $self->{filename} = shift @{$self->{filestack}} or return;
+    $self->{filename} = shift @{ $self->{filestack} } or return;
 
     # Instantiate a filename for it
     my $mabclass = $self->{mabclass};
     $self->{file} = $mabclass->in( $self->{filename} ) or return;
 
     # call this method again now that we've got a file open
-    return( $self->next( $filter ) );
+    return ( $self->next($filter) );
 
 }
 
@@ -178,8 +178,8 @@ strict is B<ON> by default.
 
 sub strict_off {
     my $self = shift;
-    $self->{ strict } = 0;
-    return(1);
+    $self->{strict} = 0;
+    return (1);
 }
 
 =head2 strict_on()
@@ -194,8 +194,8 @@ always returns true (1).
 
 sub strict_on {
     my $self = shift;
-    $self->{ strict } = 1;
-    return(1);
+    $self->{strict} = 1;
+    return (1);
 }
 
 =head2 warnings()
@@ -213,17 +213,18 @@ C<warnings()> will return the empty list when there are no warnings.
 =cut
 
 sub warnings {
-    my ($self,@new) = @_;
-    if ( @new ) {
+    my ( $self, @new ) = @_;
+    if (@new) {
         push( @{ $self->{warnings} }, @new );
         print STDERR join( "\n", @new ) if $self->{'warn'};
-    } else {
+        return;
+    }
+    else {
         my @old = @{ $self->{warnings} };
         $self->{warnings} = [];
-        return(@old);
+        return (@old);
     }
 }
-
 
 =head2 warnings_off()
 
@@ -237,7 +238,7 @@ C<warnings_off()> always returns true (1).
 
 sub warnings_off {
     my $self = shift;
-    $self->{ 'warn' } = 0;
+    $self->{'warn'} = 0;
 
     return 1;
 }
@@ -254,7 +255,8 @@ warnings_on() always returns true (1).
 
 sub warnings_on {
     my $self = shift;
-    $self->{ 'warn' } = 1;
+    $self->{'warn'} = 1;
+    return;
 }
 
 =head2 filename()
@@ -269,7 +271,6 @@ sub filename {
 
     return $self->{filename};
 }
-
 
 1;
 

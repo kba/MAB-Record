@@ -12,7 +12,7 @@ use utf8;
 use strict;
 use autodie;
 use warnings; 
-use warnings    qw< FATAL  utf8     >;
+# use warnings    qw< FATAL  utf8     >;
 use charnames   qw< :full >;
 use feature     qw< unicode_strings >;
 use Carp        qw< carp croak confess cluck >;
@@ -33,7 +33,7 @@ Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
@@ -77,9 +77,9 @@ sub _next {
     my $xml = <$fh>;
 
     ## trim stuff before the start record element
-    $xml =~ s/.*?(<datensatz.*?>)/$1/s;
+    $xml =~ s/.*?(<datensatz.*?>)/$1/xms;
     ## return undef if there isn't a good chunk of xml
-    return if ( $xml !~ m|<datensatz.*?>.*?</datensatz>|s );
+    return if ( $xml !~ m|<datensatz.*?>.*?</datensatz>|xms );
 
     ## return the chunk of xml
     return ($xml);
@@ -95,13 +95,13 @@ sub decode {
     my $text;
     my $location = '';
     my $self     = shift;
-    if ( ref($self) =~ /^MAB::File/ ) {
+    if ( ref($self) =~ m/^MAB::File/xms ) {
         $location = 'in record ' . $self->{recnum};
         $text     = shift;
     }
     else {
         $location = 'in record 1';
-        $text = $self =~ /MAB::File/ ? shift : $self;
+        $text = $self =~ m/MAB::File/xms ? shift : $self;
     }
     my $parser = XML::Parser->new();
     $parser->setHandlers(
@@ -123,13 +123,13 @@ sub encode {
     my $record;
     my $location = '';
     my $self     = shift;
-    if ( ref($self) =~ /^MAB::File/ ) {
+    if ( ref($self) =~ m/^MAB::File/xms ) {
         $location = 'in record ' . $self->{recnum};
         $record   = shift;
     }
     else {
         $location = 'in record 1';
-        $record = $self =~ /MAB::File/ ? shift : $self;
+        $record = $self =~ m/MAB::File/xms ? shift : $self;
     }
 
     my $mabxml;
@@ -185,8 +185,8 @@ sub encode {
         "\N{DOUBLE DAGGER}"       => "<tf/>",
     );
     my $regex = join "|", keys %replace;
-    $regex = qr/$regex/;
-    $mabxml =~ s/($regex)/$replace{$1}/g;
+    $regex = qr/$regex/xms;
+    $mabxml =~ s/($regex)/$replace{$1}/xmg;
     return $mabxml;
 }
 
@@ -210,7 +210,7 @@ sub start_handler {
     elsif ( $element eq 'datensatz' ) {
         $stack{record} = MAB::Record->new();
         $stack{record}->leader(
-            ".....$attrs{status}$attrs{mabVersion}.............$attrs{typ}");
+            "     $attrs{status}$attrs{mabVersion}             $attrs{typ}");
     }
     elsif ( $element eq 'tf' ) {
         if ( $stack{subfield_code} ) {
@@ -236,6 +236,7 @@ sub start_handler {
             $stack{data} .= "\N{LEFT CURLY BRACKET}";
         }
     }
+    return;
 }
 
 =head2 text_handler( )
@@ -253,6 +254,7 @@ sub text_handler {
     else {
         $stack{data} .= $text;
     }
+    return;
 }
 
 =head2 end_handler( )
@@ -303,6 +305,7 @@ sub end_handler {
             $stack{data} .= "\N{RIGHT CURLY BRACKET}";
         }
     }
+    return;
 }
 
 1;

@@ -138,7 +138,7 @@ Returns the title from the 331 tag.
 
 =cut
 
-sub title() {
+sub title {
     my $self = shift;
 
     my $field = $self->field(331);
@@ -151,7 +151,7 @@ Returns the record id from the 001 tag.
 
 =cut
 
-sub record_id() {
+sub record_id {
     my $self = shift;
 
     my $field = $self->field('001');
@@ -164,7 +164,7 @@ Returns the record type.
 
 =cut
 
-sub record_type() {
+sub record_type {
     my $self = shift;
 
     my $record_type = substr( $self->{_leader}, -1 );
@@ -177,7 +177,7 @@ Returns the record length defined in the record leader.
 
 =cut
 
-sub record_length() {
+sub record_length {
     my $self = shift;
 
     my $record_type = substr( $self->{_leader}, 0, 5 );
@@ -190,7 +190,7 @@ Returns the status of the record.
 
 =cut
 
-sub record_status() {
+sub record_status {
     my $self = shift;
 
     my $record_type = substr( $self->{_leader}, 5, 1 );
@@ -203,7 +203,7 @@ Returns the ISSN from the 542a tag.
 
 =cut
 
-sub issn() {
+sub issn {
     my $self = shift;
 
     my $field = $self->field( '542', 'a' );
@@ -219,7 +219,7 @@ a MAB::Field object for each field in the record.
 
 =cut
 
-sub fields() {
+sub fields {
     my $self = shift;
     return @{ $self->{_fields} };
 }
@@ -254,7 +254,7 @@ sub field {
 
             # Compile & stash it if necessary
             if ( not defined $regex ) {
-                $regex = qr/^$tag$/;
+                $regex = qr/^$tag$/xms;
                 $field_regex{$tag} = $regex;
             }    # not defined
 
@@ -273,7 +273,7 @@ sub field {
 
             # Compile & stash it if necessary
             if ( not defined $regex ) {
-                $regex = qr/^$tag$/;
+                $regex = qr/^$tag$/xms;
                 $field_regex{$tag} = $regex;
             }    # not defined
 
@@ -496,7 +496,7 @@ be cleared.
 
 =cut
 
-sub warnings() {
+sub warnings {
     my $self     = shift;
     my @warnings = @{ $self->{_warnings} };
     $self->{_warnings} = [];
@@ -545,39 +545,11 @@ Documentation of MABxml tags and subfields. German only.
 
 =back
 
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-mab-record at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MAB-Record>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
     perldoc MAB::Record
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MAB-Record>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/MAB-Record>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/MAB-Record>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/MAB-Record/>
-
-=back
 
 =head1 ACKNOWLEDGEMENTS
 
