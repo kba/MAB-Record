@@ -107,7 +107,7 @@ sub decode {
     # split record in fields
     my @fields = split(END_OF_FIELD, $text);
     my $leader = shift @fields;
-    if( $leader =~ m/^\N{NUMBER SIGN}{3}\s\d{5}nM2.0\d{7}\s{6}\w/xms){
+    if( $leader =~ m/^\N{NUMBER SIGN}{3}\s\d{5}[cdnpu]M2.0\d{7}\s{6}\w/xms){
         # set leader in MAB::Record object
         $mab->leader( substr($leader, 4) );
     }else{
