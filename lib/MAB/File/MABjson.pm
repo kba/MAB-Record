@@ -22,7 +22,6 @@ use Encode      qw< >;
 use MAB::Record;
 use Mojo::JSON;
 
-use Data::Dumper;
 
 =head1 VERSION
 
