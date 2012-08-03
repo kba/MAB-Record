@@ -2,6 +2,7 @@ Changes
 MANIFEST
 Makefile.PL
 README
+bin/mabdis2mabxml.pl
 lib/MAB/Record.pm
 lib/MAB/Field.pm
 lib/MAB/File.pm
