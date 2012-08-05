@@ -21,10 +21,22 @@ usage() if ( $#ARGV < 0 or
  
 sub usage
 {
-  say "Unknown option: @_" if ( @_ );
-  say "usage: mabdis2mabxml.pl [--in file.dis] [--out file.xml] [--help]";
-  say "\nfile.dis must be a CP850 encoded MAB-Diskette file.\nfile.xml will be a UTF-8 encoded MABxml file." if $help;
-  exit;
+    
+    my $usage = <<END;
+Usage: mabdis2mabxml.pl [-in file.dis] [-out file.xml] [--help]
+
+Options:
+    -in         Specify input source. File path to CP850 encoded
+                MAB-Diskette file.
+    -out        Specify output destination. File path where the UTF-8
+                encoded MABxml file should be stored.
+    
+    --help      Print this documentation
+END
+    
+    say "Unknown option: @_" if ( @_ );
+    say $usage;
+    exit;
 }
 
 $/ = "\n\n";
